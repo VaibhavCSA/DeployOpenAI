@@ -1,0 +1,30 @@
+Install-Module -Name Az -AllowClobber -Scope CurrentUser
+Connect-AzAccount
+# Variables
+$resourceGroupName = "myResourceGroup"
+$location = "EastUS"  # Change to your preferred region
+$storageAccountName = "mystorageaccount$(Get-Random -Minimum 1000 -Maximum 9999)"  # Unique name
+$openAiServiceName = "myOpenAIService"
+
+# Create Resource Group
+New-AzResourceGroup -Name $resourceGroupName -Location $location
+
+# Create Storage Account
+New-AzStorageAccount -ResourceGroupName $resourceGroupName `
+                     -Name $storageAccountName `
+                     -Location $location `
+                     -Sku "Standard_LRS" `
+                     -Kind "StorageV2"
+
+# Create Azure OpenAI Service
+$sku = New-AzOpenAIServiceSku -Name "S0" -Tier "Standard"
+New-AzOpenAIService -ResourceGroupName $resourceGroupName `
+                    -Name $openAiServiceName `
+                    -Location $location `
+                    -Sku $sku `
+                    -Properties @{"deploymentType"="OpenAI"}
+
+# Output the details
+Write-Output "Azure OpenAI Service and Storage Account deployed successfully."
+Write-Output "Storage Account Name: $storageAccountName"
+Write-Output "OpenAI Service Name: $openAiServiceName"
